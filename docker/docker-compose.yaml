@@ -5,7 +5,7 @@ services:
     environment:
       - TZ=Asia/Shanghai
     hostname: portainer
-    image: portainer/portainer
+    image: portainer/portainer:1.24.0
     mem_limit: 100m
     networks:
       network:
@@ -23,7 +23,7 @@ services:
       - MYSQL_ROOT_PASSWORD=123456
       - TZ=Asia/Shanghai
     hostname: mysql
-    image: mysql:5.7
+    image: mysql:8.0
     mem_limit: 500m
     networks:
       network:
@@ -41,7 +41,7 @@ services:
     environment:
       - TZ=Asia/Shanghai
     hostname: redis
-    image: redis:5.0
+    image: redis:6.0
     mem_limit: 100m
     networks:
       network:
@@ -61,7 +61,7 @@ services:
     environment:
       - TZ=Asia/Shanghai
     hostname: nacos
-    image: nacos/nacos-server:1.2.1
+    image: nacos/nacos-server:1.3.0
     mem_limit: 500m
     networks:
       network:
@@ -73,6 +73,7 @@ services:
     volumes:
       - ./nacos/init.d/custom.properties:/home/nacos/init.d/custom.properties
       - ./nacos/logs:/home/nacos/logs
+      - ./nacos/plugins/mysql:/home/nacos/plugins/mysql
 
   sentinel:
     build: ./sentinel
@@ -82,7 +83,7 @@ services:
     environment:
       - TZ=Asia/Shanghai
     hostname: sentinel
-    image: sentinel:1.7.1
+    image: sentinel:1.7.2
     mem_limit: 500m
     networks:
       network:
@@ -91,6 +92,25 @@ services:
       - 8719:8719
       - 8989:8989
     restart: always
+
+  seata-server:
+    container_name: seata-server
+    depends_on:
+      - nacos
+    environment:
+      - TZ=Asia/Shanghai
+      - SEATA_CONFIG_NAME=file:/root/seata-config/registry
+    hostname: seata-server
+    image: seataio/seata-server:1.2.0
+    mem_limit: 500m
+    networks:
+      network:
+        ipv4_address: 192.168.1.7
+    ports:
+      - 8091:8091
+    restart: always
+    volumes:
+      - ./seata/seata-config:/root/seata-config
 
 networks:
   network:
