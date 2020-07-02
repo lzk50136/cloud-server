@@ -31,6 +31,9 @@ services:
     ports:
       - 3306:3306
     restart: always
+    # 8.0需要加这个
+    security_opt:
+      - seccomp:unconfined
     volumes:
       - ./mysql/data:/var/lib/mysql
       - ./mysql/my.cnf:/etc/mysql/my.cnf
@@ -75,6 +78,25 @@ services:
       - ./nacos/logs:/home/nacos/logs
       - ./nacos/plugins/mysql:/home/nacos/plugins/mysql
 
+  seata:
+    container_name: seata
+    depends_on:
+      - nacos
+    environment:
+      - TZ=Asia/Shanghai
+      - SEATA_CONFIG_NAME=file:/root/seata-config/registry
+    hostname: seata
+    image: seataio/seata-server:1.2.0
+    mem_limit: 500m
+    networks:
+      network:
+        ipv4_address: 192.168.1.6
+    ports:
+      - 8091:8091
+    restart: always
+    volumes:
+      - ./seata/seata-config:/root/seata-config
+
   sentinel:
     build: ./sentinel
     container_name: sentinel
@@ -87,30 +109,69 @@ services:
     mem_limit: 500m
     networks:
       network:
-        ipv4_address: 192.168.1.6
+        ipv4_address: 192.168.1.7
     ports:
       - 8719:8719
       - 8989:8989
     restart: always
 
-  seata-server:
-    container_name: seata-server
-    depends_on:
-      - nacos
+  # 赋予rocketmq文件夹777权限
+  namesrv:
+    command: sh mqnamesrv
+    container_name: namesrv
     environment:
       - TZ=Asia/Shanghai
-      - SEATA_CONFIG_NAME=file:/root/seata-config/registry
-    hostname: seata-server
-    image: seataio/seata-server:1.2.0
+    hostname: namesrv
+    image: apacherocketmq/rocketmq:4.6.0
     mem_limit: 500m
     networks:
       network:
-        ipv4_address: 192.168.1.7
+        ipv4_address: 192.168.1.8
     ports:
-      - 8091:8091
+      - 9876:9876
     restart: always
     volumes:
-      - ./seata/seata-config:/root/seata-config
+      - ./rocketmq/namesrv/logs:/home/rocketmq/logs
+
+  broker:
+    command: sh mqbroker -n namesrv:9876 -c ../conf/broker.conf
+    container_name: broker
+    depends_on:
+      - namesrv
+    environment:
+      - TZ=Asia/Shanghai
+    hostname: broker
+    image: apacherocketmq/rocketmq:4.6.0
+    mem_limit: 1000m
+    networks:
+      network:
+        ipv4_address: 192.168.1.9
+    ports:
+      - 10909:10909
+      - 10911:10911
+      - 10912:10912
+    restart: always
+    volumes:
+      - ./rocketmq/broker/logs:/home/rocketmq/logs
+      - ./rocketmq/broker/store:/home/rocketmq/store
+      - ./rocketmq/broker/conf/broker.conf:/home/rocketmq/rocketmq-4.6.0/conf/broker.conf
+
+  console:
+    container_name: console
+    depends_on:
+      - namesrv
+    environment:
+      - TZ=Asia/Shanghai
+      - JAVA_OPTS=-Drocketmq.namesrv.addr=namesrv:9876 -Dcom.rocketmq.sendMessageWithVIPChannel=false
+    hostname: console
+    image: styletang/rocketmq-console-ng:1.0.0
+    mem_limit: 500m
+    networks:
+      network:
+        ipv4_address: 192.168.1.10
+    ports:
+      - 8088:8080
+    restart: always
 
 networks:
   network:
