@@ -1,4 +1,4 @@
-﻿安装docker-ce
+安装docker-ce
 ------------------------
 yum update -y
 

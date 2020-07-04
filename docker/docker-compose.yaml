@@ -23,7 +23,7 @@ services:
       - MYSQL_ROOT_PASSWORD=123456
       - TZ=Asia/Shanghai
     hostname: mysql
-    image: mysql:8.0
+    image: mysql:8.0.20
     mem_limit: 500m
     networks:
       network:
@@ -44,7 +44,7 @@ services:
     environment:
       - TZ=Asia/Shanghai
     hostname: redis
-    image: redis:6.0
+    image: redis:6.0.5
     mem_limit: 100m
     networks:
       network:
