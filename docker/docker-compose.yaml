@@ -37,6 +37,7 @@ services:
     volumes:
       - ./mysql/data:/var/lib/mysql
       - ./mysql/my.cnf:/etc/mysql/my.cnf
+      - ./mysql/initdb:/docker-entrypoint-initdb.d
 
   redis:
     command: redis-server --port 6379 --requirepass 123456 --appendonly yes
