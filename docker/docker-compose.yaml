@@ -5,11 +5,11 @@ services:
     environment:
       - TZ=Asia/Shanghai
     hostname: portainer
-    image: portainer/portainer:1.24.0
-    mem_limit: 100m
+    image: portainer/portainer:1.24.1
+    mem_limit: 128m
     networks:
       network:
-        ipv4_address: 192.168.1.2
+        ipv4_address: 192.168.159.2
     ports:
       - 9000:9000
     restart: always
@@ -23,11 +23,11 @@ services:
       - MYSQL_ROOT_PASSWORD=123456
       - TZ=Asia/Shanghai
     hostname: mysql
-    image: mysql:8.0.20
-    mem_limit: 500m
+    image: mysql:8.0.21
+    mem_limit: 512m
     networks:
       network:
-        ipv4_address: 192.168.1.3
+        ipv4_address: 192.168.159.3
     ports:
       - 3306:3306
     restart: always
@@ -45,11 +45,11 @@ services:
     environment:
       - TZ=Asia/Shanghai
     hostname: redis
-    image: redis:6.0.5
-    mem_limit: 100m
+    image: redis:6.0.8
+    mem_limit: 128m
     networks:
       network:
-        ipv4_address: 192.168.1.4
+        ipv4_address: 192.168.159.4
     ports:
       - 6379:6379
     restart: always
@@ -65,19 +65,18 @@ services:
     environment:
       - TZ=Asia/Shanghai
     hostname: nacos
-    image: nacos/nacos-server:1.3.0
-    mem_limit: 500m
+    image: nacos/nacos-server:1.3.2
+    mem_limit: 1024m
     networks:
       network:
-        ipv4_address: 192.168.1.5
+        ipv4_address: 192.168.159.5
     ports:
       - 8848:8848
       - 9555:9555
     restart: always
     volumes:
-      - ./nacos/init.d/custom.properties:/home/nacos/init.d/custom.properties
       - ./nacos/logs:/home/nacos/logs
-      - ./nacos/plugins/mysql:/home/nacos/plugins/mysql
+      - ./nacos/init.d/custom.properties:/home/nacos/init.d/custom.properties
 
   seata:
     container_name: seata
@@ -91,7 +90,7 @@ services:
     mem_limit: 500m
     networks:
       network:
-        ipv4_address: 192.168.1.6
+        ipv4_address: 192.168.159.6
     ports:
       - 8091:8091
     restart: always
@@ -110,7 +109,7 @@ services:
     mem_limit: 500m
     networks:
       network:
-        ipv4_address: 192.168.1.7
+        ipv4_address: 192.168.159.7
     ports:
       - 8719:8719
       - 8989:8989
@@ -127,7 +126,7 @@ services:
     mem_limit: 500m
     networks:
       network:
-        ipv4_address: 192.168.1.8
+        ipv4_address: 192.168.159.8
     ports:
       - 9876:9876
     restart: always
@@ -146,7 +145,7 @@ services:
     mem_limit: 1000m
     networks:
       network:
-        ipv4_address: 192.168.1.9
+        ipv4_address: 192.168.159.9
     ports:
       - 10909:10909
       - 10911:10911
@@ -169,7 +168,7 @@ services:
     mem_limit: 500m
     networks:
       network:
-        ipv4_address: 192.168.1.10
+        ipv4_address: 192.168.159.10
     ports:
       - 8088:8080
     restart: always
@@ -179,5 +178,5 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 192.168.1.0/24
+        - subnet: 192.168.159.0/24
     name: network
